@@ -1,0 +1,185 @@
+\ProvidesPackage{main}
+\RequirePackage[l2tabu, orthodox]{nag}
+\usepackage{amssymb,amsmath,amsthm,amsfonts,mathrsfs,xcolor}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{ifthen}
+\usepackage{xcolor}
+\usepackage{mathtools}
+\usepackage{xparse, xspace}
+\usepackage[inline]{enumitem}
+\usepackage{tikz, pgfplots, fp}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{shapes, shapes.misc, shapes.geometric, decorations, fit, backgrounds, positioning, patterns, shadows, calc, arrows, arrows.meta, trees, math}
+\usetikzlibrary{external}
+\tikzexternalize[prefix=figures/]
+\tikzset{>={Latex[width=2mm,length=2mm]}}
+\tikzset{
+  point/.style={
+    draw,
+    circle,
+    inner sep=0pt,
+    outer sep=0pt,
+    minimum size=0.1cm,
+    fill
+  }
+}
+\tikzset{square/.style={regular polygon,regular polygon sides=4}}
+\makeatletter
+\newcommand{\Distance}[3]{% % from https://tex.stackexchange.com/q/56353/121799
+\tikz@scan@one@point\pgfutil@firstofone($#1-#2$)\relax
+\pgfmathsetmacro{#3}{round(0.99626*veclen(\the\pgf@x,\the\pgf@y)/0.0283465)/1000}
+}% Explanation: the calc library allows us, among other things, to add and
+% subtract points, so ($#1-#2$) is simply the difference between the points
+% #1 and #2. The combination \tikz@scan@one@point\pgfutil@firstofone extracts
+% the coordinates of the new point and stores them in \pgf@x and \pgf@y.
+% They get fed in veclen, and \pgfmathsetmacro stores the result in #3.
+% EDIT: included fudge factor, see https://tex.stackexchange.com/a/22702/121799
+\makeatother
+\usepackage{calc}
+\usepackage{booktabs, multicol, multirow, adjustbox, blkarray}
+\usepackage{chessfss}
+\usepackage{mleftright}
+\usepackage{subcaption}
+\mleftright
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{keyval}
+\usepackage{textcomp}
+\usepackage{layout}
+\usepackage{xfrac}
+\UseCollection{xfrac}{plainmath}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+
+
+\newcommand{\floor}[1]{\left\lfloor#1\right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil#1\right\rceil}
+\newcommand{\card}[1]{\left\lvert#1\right\rvert}
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\bigO}[1]{\mathcal{O}\left(#1\right)}
+\newcommand{\bigOm}[1]{\Omega\left(#1\right)}
+\newcommand{\bigTh}[1]{\Theta\left(#1\right)}
+\newcommand{\littleO}[1]{o\left(#1\right)}
+\newcommand{\littleOm}[1]{\omega\left(#1\right)}
+\newcommand{\littleTh}[1]{\theta\left(#1\right)}
+\renewcommand{\Pr}{\mathbb{P}}
+\newcommand{\prob}[1]{\operatorname{\Pr}\left(#1\right)}
+\newcommand{\expectation}[1]{\operatorname{\mathbb{E}}\left[#1\right]}
+\newcommand{\variance}[1]{\operatorname{\mathbb{V}}\left[#1\right]}
+\newcommand{\suchthat}{\mid}
+\newcommand{\given}{\mid}
+\newcommand{\divides}{\mid}
+\newcommand{\set}[1]{\left\lbrace#1\right\rbrace}
+\newcommand{\nth}[1]{#1^{\text{th}}}
+\DeclareMathOperator{\poly}{poly}
+\DeclareMathOperator{\polylog}{polylog}
+\DeclareMathOperator{\polyloglog}{polyloglog}
+
+
+\makeatletter
+\NewDocumentCommand{\LineComment}{s m}{%
+    \Statex \IfBooleanF{#1}{\hspace*{\ALG@thistlm}}\(\triangleright\) #2}
+\makeatother
+
+\definecolor{algcolor}{HTML}{2979FF}
+\definecolor{inputcolor}{rgb}{1, 0, 0}
+\definecolor{outputcolor}{rgb}{1, 0, 0}
+\definecolor{keywordcolor}{HTML}{80CBC4}
+%%--------------------PYTHON STYLE---------------------------------%
+\algrenewtext{For}[1]{\algorithmicfor~#1:}
+\algrenewtext{If}[1]{\algorithmicif~#1:}
+\algrenewtext{While}[1]{\algorithmicwhile~#1:}
+\algrenewtext{ElsIf}[1]{\algorithmicelse~\algorithmicif~#1:}
+\algrenewtext{Else}{\algorithmicelse:}
+\algrenewtext{Function}[2]{\textbf{Function}~\textproc{\AlgName{#1}}(#2):}
+% \algrenewtext{Function}[2]{\textbf{def}~\textproc{\AlgName{#1}}(#2):}
+% \algrenewtext{Procedure}[2]{\textbf{def}~\textproc{\AlgName{#1}}(#2):}
+%%-----------------------------------------------------------------%
+% \algrenewtext{Functio}[2]{\algorithmicfunction~\textproc{\AlgName{#1}}(#2)}
+% \algrenewtext{Procedure}[2]{\algorithmicprocedure~\textproc{\AlgName{#1}}(#2)}
+\algnewcommand\algorithmicto{\textbf{to}}
+
+\algblockdefx{ForEach}{EndForEach}[1]{\algorithmicfor~\textbf{each}~#1:}{\algorithmicend~\algorithmicfor~\textbf{each}}
+\makeatletter
+\ifthenelse{\equal{\ALG@noend}{t}}{\algtext*{EndForEach}}{}
+\makeatother
+
+\algblockdefx{ForRange}{EndForRange}[3]{\algorithmicfor~#1~$\gets$~#2~\algorithmicto~#3:}{\algorithmicend~\algorithmicfor}
+\makeatletter
+\ifthenelse{\equal{\ALG@noend}{t}}{\algtext*{EndForRange}}{}
+\makeatother
+
+
+\newcommand{\False}{\texttt{False}\xspace}
+\newcommand{\True}{\texttt{True}\xspace}
+\newcommand{\Null}{\texttt{Null}\xspace}
+\newcommand{\AlgName}[1]{{\textcolor{algcolor}{#1}}}
+\newcommand{\AlgInput}[1]{\Statex \textcolor{inputcolor}{\hspace*{\algorithmicindent}Input\phantom{O} \(\triangleright\)} #1}
+\newcommand{\AlgOutput}[1]{\Statex \textcolor{outputcolor}{\hspace*{\algorithmicindent}Output \(\triangleright\)} #1}
+\renewcommand*\Call[2]{\textproc{#1}\left(#2\right)}
+\NewDocumentCommand{\CallRef}{s m m}{
+    \IfBooleanTF{#1}{\Call{\nameref*{#2}}{#3}}{\Call{\nameref{#2}}{#3}}
+}
+
+\DeclareMathOperator{\avg}{avg}
+
+\algdef{SE}[SUBALG]{Indent}{EndIndent}{}{\algorithmicend\ }%
+\algtext*{Indent}
+\algtext*{EndIndent}
+\usepackage{todonotes}
+\newcommand{\peter}[1]{\todo[inline,color=blue!40]{#1 -- Peter}}
+\newcommand{\gopal}[1]{\todo[inline,color=green!40]{#1 -- Gopal}}
+\newcommand{\khalid}[1]{\todo[inline,color=red!40]{#1 -- Khalid}}
+
+% %----------------PETER PREAMBLE------------------------%
+% \newcommand{\ra}{\rightarrow}
+% \newcommand{\la}{\leftarrow}
+% \newcommand{\Ra}{\Rightarrow}
+% \newcommand{\La}{\Leftarrow}
+% % \renewcommand{\Pr}{\operatorname*{\textbf{\textup{Pr}}}}
+% \DeclareMathOperator*{\II}{\textbf{\textup{I}}}
+% \DeclareMathOperator*{\HH}{\textbf{\textup{H}}}
+% \DeclareMathOperator*{\EE}{\mathbb{E}}
+% \DeclareMathOperator*{\VV}{\textbf{\textup{Var}}}
+% \DeclareMathOperator*{\DD}{\textbf{\textup{D}}}
+% \newcommand{\brackets}[1]{\left( #1 \right)}
+% \newcommand{\lb}{\left}
+% \newcommand{\rb}{\right}
+% \newcommand{\br}[1]{\brackets{#1}}
+% \newcommand{\range}{\textsf{range}}
+
+
+% \newcommand{\congest}{\ensuremath{\mathsf{CONGEST}}}
+
+% \makeatletter
+% \newtheorem*{rep@theorem}{\rep@title}
+% \newcommand{\newreptheorem}[2]{%
+% \newenvironment{rep#1}[1]{%
+% \def\rep@title{#2 \ref{##1}}%
+% \begin{rep@theorem}[restated]}%
+% {\end{rep@theorem}}}
+% \makeatother
+% \newreptheorem{lemma}{Lemma}
+% \newreptheorem{theorem}{Theorem}
+% \newreptheorem{corollary}{Corollary}
+
+% \newboolean{short}
+% \setboolean{short}{false}
+% \newcommand{\onlyShort}[1]{\ifthenelse{\boolean{short}}{#1}{}}
+% \newcommand{\onlyLong}[1]{\ifthenelse{\boolean{short}}{}{#1}}
+
+% \newcommand{\todo}[1]{\marginpar{\tiny\textcolor{blue}{\textsf{TODO:}} #1}}
+% %----------------PETER PREAMBLE------------------------%
+
+\usepackage{hyperref}
+\hypersetup{colorlinks = true}
+\usepackage[noabbrev,capitalize]{cleveref}
+
+\makeatletter
+\renewcommand{\todo}[2][]{\tikzexternaldisable\@todo[#1]{#2}\tikzexternalenable}
+\makeatother
