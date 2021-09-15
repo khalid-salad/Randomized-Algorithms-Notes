@@ -1,1 +1,127 @@
 \section{08/24}
+This course will involve only a few techniques with a variety of applications.
+Many domains, such as Distributed Computing, Networks, etc., all depend on
+randomized algorithms.
+
+We will focus on a few techniques that lead to understanding.
+\begin{enumerate}
+    \item Union Bound
+    \item Linearity of Expectation
+    \item Markov's Inequality
+    \item Chernoff Bounds
+\end{enumerate}
+These four things prove very useful in the design and understanding of
+algorithms.
+
+\subsection{Basic Definitions}
+\begin{definition}
+    A \emph{Sample Space} is a set $S$ whose elements consist of \emph{simple
+    events} (also called \emph{elementary} events). When $S$ is finite or
+    countably infinite, we say it is a \emph{Discrete} sample space.
+\end{definition}
+
+\begin{definition}
+    An \emph{event} in a sample space $S$ is a subset of $S$.
+\end{definition}
+
+\begin{definition}
+    A \emph{Probability Distribution} on $S$ is a function $\Pr: 2^S \to [0, 1]$
+    that satisfies
+    \begin{enumerate}
+        \item $\prob{S} = 1$
+        \item If $E_1$, $E_2$, $\dots$ are pairwise disjoint events (i.e., $E_i
+        \cap E_j = \emptyset$ for all pairs $i, j$, also called mutually
+        exclusive), indexed by some finite or countably infinite set $I$, then
+        \[\prob{\bigcup_{i \in I} E_i} = \sum_{i \in I} \prob{E_i}\]
+    \end{enumerate}
+\end{definition}
+
+\subsection{Conditional Probability}
+The expression $\prob{E_2 \given E_1}$ is read ``the probability of $E_2$ given
+$E_1$.'' For example, if we randomly select a person from Texas, we might write
+\begin{align*}
+    E_1 &= \hbox{person chosen is in Houston}\\
+    E_2 &= \hbox{person chosen is a UH student}
+\end{align*}
+in which case $\prob{E_2 \given E_1}$ is simply the probability that a randomly
+selected person from Texas is a UH student \emph{given that they are in
+Houston}.
+
+In general, the conditional probability $\prob{E_2 \given E_1}$ is defined
+\[\prob{E_2 \given E_1} = \frac{\prob{E_2 \cap E_1}}{\prob{E_1}}\]
+which intuitively can be thought of as taking the probability that $E_2$ and
+$E_1$ occur and ``normalizing it'' by dividing by the probability that $E_1$
+occurs. 
+
+\subsection{Independence}
+Two events, $E_1$ and $E_2$, are \emph{independent} if
+\[\prob{E_1 \cap E_2} = \prob{E_1}\prob{E_2}\]
+or, equivalently, if
+\[\prob{E_1 \given E_2} = \prob{E_1}\]
+For example, suppose $C_1$ and $C_2$ are the outcomes of two fair coin tosses.
+These are independent, since
+\[\prob{C_1 = H \cap C_2 = T} = \prob{C_1 = H}\prob{C_2 = T} = \frac{1}{4}\]
+Independence is not always related to physical independence. For example, say we
+are given a fair die and let
+\begin{align*}
+    E_1 &= \hbox{roll is even}\\
+    E_2 &= \hbox{roll is less than or equal to 4}
+\end{align*}
+In this case, we can enumerate the sample space and explicitly determine
+$\prob{E_1}$, $\prob{E_2}$, $\prob{E_1 \cap E_2}$, and $\prob{E_1}\prob{E_2}$,
+to see if the events are independent:
+\begin{align*}
+    E_1 &= \set{2, 4, 6}\\
+    E_2 &= \set{1, 2, 3, 4}\\
+    E_1 \cap E_2 &= \set{2, 4}
+\end{align*}
+Then
+\begin{align*}
+    \prob{E_1} &= \frac{3}{6} = \frac{1}{2}\\
+    \prob{E_2} &= \frac{4}{6} = \frac{2}{3}\\
+    \prob{E_1 \cap E_2} &= \frac{2}{6} = \frac{1}{3}\\
+    \prob{E_1}\prob{E_2} &= \frac{1}{2} \cdot \frac{2}{3} = \frac{1}{3}
+\end{align*}
+Thus, we see the events are independent. On the other hand, if $E_2$ is the
+event that the roll is \emph{strictly less} than 4, we have
+\begin{align*}
+    E_1 &= \set{2, 4, 6}\\
+    E_2 &= \set{1, 2, 3}\\
+    E_1 \cap E_2 &= \set{2}
+\end{align*}
+Then
+\begin{align*}
+    \prob{E_1} &= \frac{3}{6} = \frac{1}{2}\\
+    \prob{E_2} &= \frac{3}{6} = \frac{1}{2}\\
+    \prob{E_1 \cap E_2} &= \frac{1}{6}\\
+    \prob{E_1}\prob{E_2} &= \frac{1}{2} \cdot \frac{1}{2} = \frac{1}{4}
+\end{align*}
+and we see that the events are \emph{not independent}.
+
+\subsection{The Inclusion-Exclusion Principle}
+%TODO insert venn diagram
+A basic result in set theory is that
+\begin{align*}
+    \card{A \cup B} &= \card{A} + \card{B} - \card{A \cap B}\\
+    \card{A \cup B \cup C} &= \card{A} + \card{B} + \card{C} - \card{A \cap B} - \card{A \cap C} - \card{B \cap C} + \card{A \cap B \cap C}
+\end{align*}
+which can be generalized to an arbitrary finite union by
+\[\bigcup_{i=1}^n A_i = \sum_{k=1}^n (-1)^{k+1} \left(\sum_{1 \leq i_1 < \dots < i_k \leq n} \card{A_{i_1} \cap \cdots \cap A_{i_k}} \right)\]
+or equivalently
+\[\card{\bigcup_{i=1}^n A_i} = \sum_{\emptyset \neq J \subseteq \set{1,\dots,n}}
+(-1)^{\card{J}+1} \card{\bigcap_{j\in J} A_j}\]
+This yields the probability formulas
+\begin{align*}
+    \prob{E_1 \cup E_2} &= \prob{E_1} + \prob{E_2} - \prob{E_1 \cap E_2}\\
+    \prob{\bigcup_{i=1}^n E_i} &= \sum_{\emptyset \neq J \subseteq \set{1,\dots,n}}
+(-1)^{\card{J}+1} \prob{\bigcap_{j\in J} E_j}
+\end{align*}
+
+\subsection{Union Bound}
+In general
+\[\prob{\bigcup E_i} \leq \sum\prob{E_i}\]
+While this bound is often not very precise, it is useful in many cases where the
+events $E_i$ are ``bad'' and we can bound the likelihood of a single $E_i$. This
+allows us to bound the likelihood of \emph{any} $E_i$. 
+
+\subsection{Conditioning on Multiple Events (Chain Rule)}
