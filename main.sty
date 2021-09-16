@@ -7,8 +7,10 @@
 \usepackage{mathtools}
 \usepackage{xparse, xspace}
 \usepackage[inline]{enumitem}
+\theoremstyle{plain}
 \usepackage{tikz, pgfplots, fp}
 \pgfplotsset{compat=newest}
+\usepackage{tcolorbox}
 \usetikzlibrary{shapes, shapes.misc, shapes.geometric, decorations, fit, backgrounds, positioning, patterns, shadows, calc, arrows, arrows.meta, trees, math}
 \usetikzlibrary{external}
 \tikzexternalize[prefix=figures/]
@@ -24,17 +26,23 @@
   }
 }
 \tikzset{square/.style={regular polygon,regular polygon sides=4}}
-\makeatletter
-\newcommand{\Distance}[3]{% % from https://tex.stackexchange.com/q/56353/121799
-\tikz@scan@one@point\pgfutil@firstofone($#1-#2$)\relax
-\pgfmathsetmacro{#3}{round(0.99626*veclen(\the\pgf@x,\the\pgf@y)/0.0283465)/1000}
-}% Explanation: the calc library allows us, among other things, to add and
-% subtract points, so ($#1-#2$) is simply the difference between the points
-% #1 and #2. The combination \tikz@scan@one@point\pgfutil@firstofone extracts
-% the coordinates of the new point and stores them in \pgf@x and \pgf@y.
-% They get fed in veclen, and \pgfmathsetmacro stores the result in #3.
-% EDIT: included fudge factor, see https://tex.stackexchange.com/a/22702/121799
-\makeatother
+\tcbuselibrary{theorems, skins, breakable, minted, listings, most}
+\tcbset{shield externalize}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage[noabbrev,capitalize]{cleveref}
+\crefname{line}{line}{lines}
+\crefname{ineq}{Inequality}{Inequalities}
+\creflabelformat{ineq}{#2{\upshape(#1)}#3}
+\crefname{func}{Function}{Functions}
+\creflabelformat{func}{#2#1#3}
+\hypersetup{final}
+\newtcbtheorem[number within=section,crefname={Theorem}{Theorems},Crefname={Theorem}{Theorems}]{theorem}{Theorem}{colback=gray!25,colframe=gray!90!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{thm}
+\newtcbtheorem[number within=section,crefname={Definition}{Definitions},Crefname={Definitions}{Definitions}]{definition}{Definition}{colback=blue!5,colframe=blue!35!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{def}
+\newtcbtheorem[use counter from=theorem,crefname={Lemma}{Lemmas},Crefname={Lemma}{Lemmas}]{lemma}{Lemma}{colback=gray!25,colframe=gray!90!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{lem}
+\newtcbtheorem[use counter from=theorem,crefname={Corollary}{Corollaries},Crefname={Corollary}{Corollaries}]{corollary}{Corollary}{colback=gray!25,colframe=gray!90!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{cor}
+\newtcbtheorem[number within=section]{wexercise}{Worked Exercise}{nobeforeafter,breakable,colframe=green!60!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{wexe}
+\newtcbtheorem[number within=section]{exercise}{Exercise}{nobeforeafter,breakable,colframe=red!35!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{exe}
+\newtcbtheorem[number within=section,crefname={Problem}{Problems},Crefname={Problem}{Problems}]{problem}{Problem}{breakable,colback=red!5,colframe=red!60!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{prob}
 \usepackage{calc}
 \usepackage{booktabs, multicol, multirow, adjustbox, blkarray}
 \usepackage{chessfss}
@@ -49,11 +57,6 @@
 \usepackage{xfrac}
 \UseCollection{xfrac}{plainmath}
 
-
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}{Lemma}
-\newtheorem{corollary}{Corollary}
-\newtheorem{definition}{Definition}
 
 
 \newcommand{\floor}[1]{\left\lfloor#1\right\rfloor}
@@ -97,6 +100,7 @@
 \algrenewtext{ElsIf}[1]{\algorithmicelse~\algorithmicif~#1:}
 \algrenewtext{Else}{\algorithmicelse:}
 \algrenewtext{Function}[2]{\textbf{Function}~\textproc{\AlgName{#1}}(#2):}
+\algrenewtext{Loop}{\algorithmicloop:}
 % \algrenewtext{Function}[2]{\textbf{def}~\textproc{\AlgName{#1}}(#2):}
 % \algrenewtext{Procedure}[2]{\textbf{def}~\textproc{\AlgName{#1}}(#2):}
 %%-----------------------------------------------------------------%
@@ -132,53 +136,6 @@
 \algtext*{Indent}
 \algtext*{EndIndent}
 \usepackage{todonotes}
-\newcommand{\peter}[1]{\todo[inline,color=blue!40]{#1 -- Peter}}
-\newcommand{\gopal}[1]{\todo[inline,color=green!40]{#1 -- Gopal}}
-\newcommand{\khalid}[1]{\todo[inline,color=red!40]{#1 -- Khalid}}
-
-% %----------------PETER PREAMBLE------------------------%
-% \newcommand{\ra}{\rightarrow}
-% \newcommand{\la}{\leftarrow}
-% \newcommand{\Ra}{\Rightarrow}
-% \newcommand{\La}{\Leftarrow}
-% % \renewcommand{\Pr}{\operatorname*{\textbf{\textup{Pr}}}}
-% \DeclareMathOperator*{\II}{\textbf{\textup{I}}}
-% \DeclareMathOperator*{\HH}{\textbf{\textup{H}}}
-% \DeclareMathOperator*{\EE}{\mathbb{E}}
-% \DeclareMathOperator*{\VV}{\textbf{\textup{Var}}}
-% \DeclareMathOperator*{\DD}{\textbf{\textup{D}}}
-% \newcommand{\brackets}[1]{\left( #1 \right)}
-% \newcommand{\lb}{\left}
-% \newcommand{\rb}{\right}
-% \newcommand{\br}[1]{\brackets{#1}}
-% \newcommand{\range}{\textsf{range}}
-
-
-% \newcommand{\congest}{\ensuremath{\mathsf{CONGEST}}}
-
-% \makeatletter
-% \newtheorem*{rep@theorem}{\rep@title}
-% \newcommand{\newreptheorem}[2]{%
-% \newenvironment{rep#1}[1]{%
-% \def\rep@title{#2 \ref{##1}}%
-% \begin{rep@theorem}[restated]}%
-% {\end{rep@theorem}}}
-% \makeatother
-% \newreptheorem{lemma}{Lemma}
-% \newreptheorem{theorem}{Theorem}
-% \newreptheorem{corollary}{Corollary}
-
-% \newboolean{short}
-% \setboolean{short}{false}
-% \newcommand{\onlyShort}[1]{\ifthenelse{\boolean{short}}{#1}{}}
-% \newcommand{\onlyLong}[1]{\ifthenelse{\boolean{short}}{}{#1}}
-
-% \newcommand{\todo}[1]{\marginpar{\tiny\textcolor{blue}{\textsf{TODO:}} #1}}
-% %----------------PETER PREAMBLE------------------------%
-
-\usepackage{hyperref}
-\hypersetup{colorlinks = true}
-\usepackage[noabbrev,capitalize]{cleveref}
 
 \makeatletter
 \renewcommand{\todo}[2][]{\tikzexternaldisable\@todo[#1]{#2}\tikzexternalenable}

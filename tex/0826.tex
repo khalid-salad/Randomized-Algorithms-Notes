@@ -13,3 +13,83 @@ Setting
 yields $n \geq 23$. 
 
 \subsection{Randomized Algorithms}
+\begin{problem}{Toy Problem}{}
+Let $A$ be an array of $n$ numbers with the property that at least one number
+occurs at least $\sfrac{n}{2}$ times and the rest are distinct. Our goal is to
+find the element with duplicate entries.
+\end{problem}
+
+Any deterministic algorithm will require at least $\sfrac{n}{2} + 1$ operations.
+However, we can construct a randomized algorithm that only requires
+$\bigO{\log{n}}$ operations.
+
+We do this by \emph{random sampling}. Assume that choosing a single element in
+$\set{a_1, a_2, \dots, a_n}$ requires $\bigO{1}$ time and that we sample
+\emph{with replacement}. We will frequently use sampling with replacement
+because it allows the samples to be independent, and therefore simplifies the
+analysis. Now, consider the following algorithm:
+
+\begin{algorithm}
+    \caption{Randomized Algorithm for Toy Problem}
+    \begin{algorithmic}[1]
+        \Function{Rand-Duplicate-Toy}{\texttt{arr}}
+            \Loop\label{line:toyloop}
+                \State $\texttt{sample}_1 \gets \Call{Sample}{\texttt{arr}}$
+                \State $\texttt{sample}_2 \gets \Call{Sample}{\texttt{arr}}$
+                \If{$\texttt{sample}_1 \neq \texttt{sample}_2$}
+                    \State \Return $\texttt{sample}_1$
+                \EndIf
+            \EndLoop
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+This algorithm simply chooses two elements (not necessarily distinct) at random
+from the array and repeats until the two elements are identical, after which it
+outputs the sampled element as the duplicate.
+
+Let us analyze the probability that this algorithm outputs the duplicate value
+after a single iteration. Suppose the two values chosen are $a_i$ and $a_j$.
+Then
+\begin{align*}\prob{a_i = a_j \text{ and } i \neq j}
+    &= \frac{\sfrac{n}{2}}{n} \cdot \frac{\sfrac{n}{2} - 1}{n}\\
+    &= \frac{1}{2} \left(\frac{1}{2} - \frac{1}{n}\right)\\
+    &= \frac{1}{4} - \frac{1}{2n}\\
+    &\geq \frac{3}{2} \hbox{ for $n \geq 5$} 
+\end{align*}
+What is the probability, then, that our algorithm fails after $k$ iterations of
+\cref{line:toyloop}? These events are independent, hence the probability is
+bounded above by
+\begin{align*}\prob{\text{failure}}
+    &\leq \left(1 - \frac{3}{20}\right)^k\\
+    &\leq e^{-\frac{3}{2}k}
+    \shortintertext{Setting $k = \frac{20}{3}\ln{n}$,}\\
+    &= e^{-\ln{n}}\\
+    &=\frac{1}{n}
+\end{align*}
+
+\subsection{Concepts in Randomized Algorithms}
+\begin{definition}{}{}
+    An algorithm is \emph{Monte Carlo} if it has a non-zero probability of
+    outputting an incorrect solution. If an algorithm will output the correct
+    solution with probability 1, it is \emph{Las Vegas}.
+\end{definition}
+
+\begin{definition}{High Probability}{}
+    Given an input of size $n$, we say an event occurs \emph{with high
+    probability} (whp) if it occurs with probability $1 - \sfrac{1}{n^c}$ for
+    some $c > 0$.
+\end{definition}
+
+\begin{problem}{Modified Toy Problem}{}
+    Let $A$ be an array of $n$ numbers with the property that \emph{either} all
+    elements are distinct \emph{or} $\sfrac{n}{2}$ elements are repeated.
+\end{problem}
+
+Let us define
+\begin{align*}
+    E_1 &= \hbox{event that exactly $\sfrac{n}{2}$ elements are distinct}\\
+    E_2 &= \hbox{event that all $n$ elements are distinct}
+\end{align*}
+
+
