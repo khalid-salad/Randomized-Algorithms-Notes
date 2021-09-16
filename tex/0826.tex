@@ -1,0 +1,15 @@
+\section{08/26}
+\subsection{Birthday Paradox}
+The probability that no two people share a birthday is
+\begin{align*}\prob{E_1 \cap E_2 \cap \dots \cap E_n}
+    &= \prob{E_1}\prob{E_2 \given E_1}\cdots \prob{E_n \given E_1 \cap E_2 \cap \dots \cap E_{n - 1}}\\
+    &= 1 \times \left(1 - \frac{1}{365}\right) \times \left(1 - \frac{2}{365}\right) \times \cdots \times \left(1 - \frac{365 - n + 1}{365}\right)
+    \shortintertext{Applying the inequality $1 - x \leq e^{-x}$ when $\abs{x} < 1$}\\
+    &\leq 1 \cdot e^{-\frac{1}{365}} \cdot e^{-\frac{2}{365}} \cdots e^{-\frac{n - 1}{365}}\\
+    &= e^{-\frac{n(n-1)}{2\cdot365}}
+\end{align*}
+Setting
+\[e^{-\frac{n(n-1)}{2\cdot365}} \leq \frac{1}{2}\]
+yields $n \geq 23$. 
+
+\subsection{Randomized Algorithms}

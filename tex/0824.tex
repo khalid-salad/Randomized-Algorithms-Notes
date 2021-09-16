@@ -107,7 +107,7 @@ A basic result in set theory is that
 \end{align*}
 which can be generalized to an arbitrary finite union by
 \[\bigcup_{i=1}^n A_i = \sum_{k=1}^n (-1)^{k+1} \left(\sum_{1 \leq i_1 < \dots < i_k \leq n} \card{A_{i_1} \cap \cdots \cap A_{i_k}} \right)\]
-or equivalently
+or equivalentlyd
 \[\card{\bigcup_{i=1}^n A_i} = \sum_{\emptyset \neq J \subseteq \set{1,\dots,n}}
 (-1)^{\card{J}+1} \card{\bigcap_{j\in J} A_j}\]
 This yields the probability formulas
@@ -125,3 +125,31 @@ events $E_i$ are ``bad'' and we can bound the likelihood of a single $E_i$. This
 allows us to bound the likelihood of \emph{any} $E_i$. 
 
 \subsection{Conditioning on Multiple Events (Chain Rule)}
+By repeatedly applying the definition of conditional probability, we have
+\begin{align*}\prob{E_1 \cap E_2 \cap \dots \cap E_n}
+    &= \prod_{i=1}^n \prob{E_i \given E_1 \cap E_2 \cap \dots \cap E_{i-1}}
+    &= \prob{E_1}\prob{E_2 \given E_1}\cdots \prob{E_n \given E_1 \cap E_2 \cap \dots \cap E_{n - 1}}\\
+\end{align*}
+
+\subsection{Birthday Paradox}
+Suppose $n$ people are in a room and they have birthdays chosen uniformly at
+random from the 365 calendar days. What is the probability that two people share
+a birthday?
+
+The probability that \emph{no two} people share a birthday can be calculated by
+considering the following events:
+
+\begin{align*}
+    E_1 &= \hbox{person 1 has a birthday}\\
+    E_2 &= \hbox{person 2 has a different birthday than person 1}\\
+    \phantom{..}&\vdots\\
+    E_i &= \hbox{person $i$ has a different birthday than people 1 through $i - 1$}
+\end{align*}
+
+Specifically, the probability that no two people share a birthday is
+\begin{align*}\prob{E_1 \cap E_2 \cap \dots \cap E_n}
+    &= \prob{E_1}\prob{E_2 \given E_1}\cdots \prob{E_n \given E_1 \cap E_2 \cap \dots \cap E_{n - 1}}\\
+    &= 1 \times \left(1 - \frac{1}{365}\right) \times \left(1 - \frac{2}{365}\right) \times \cdots \times \left(1 - \frac{365 - n + 1}{365}\right) 
+\end{align*}
+
+For what value of $n$ is the above probability less than $\sfrac{1}{2}$?
