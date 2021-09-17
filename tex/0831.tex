@@ -1,0 +1,149 @@
+\section{08/31}
+\subsection{Verifying Matrix Multiplication}
+\begin{problem}{Verifying Matrix Multiplication}{}
+    Let $A$, $B$, and $C$ be $n \times n$ matrices. Verify whether
+    \[A \times B = C\]
+\end{problem}
+The best known deterministic algorithm for this requires $\bigO{n^{2.37286}}$
+operations, improving over the previous best of $\bigO{n^{2.37287}}$
+\cite{alman2020refined}. However, we can do substantially better using
+randomization.
+
+A principle in randomized algorithms is to take advantage of an ``abundance of
+weaknesses,'' that is, when some property that is helpful towards your algorithm
+occurs often enough, to try and make use of that property.
+
+In this case, the weakness is that, if $AB = C$, then $AB\vec{r} = C\vec{r}$ for
+every vector $\vec{r}$. Thus, a single vector will prove if $AB \neq C$, and
+each vector for which $AB\vec{r} = C\vec{r}$ increases our confidence that $AB =
+C$. This admits the following pseudocode
+\begin{algorithm}
+    \caption{Verify Matrix Multiplication}
+    \begin{algorithmic}[1]
+        \Function{Rand-Matrix-Mult-Verify}{A, B, C}
+            \State $\vec{r} \gets \Call{Sample}{\set{0,1}^n}$
+            \If{$A(B\vec{r}) \neq C\vec{r}$}
+                \State \Return \False
+            \Else
+                \State \Return \True
+            \EndIf
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Notice that this algorithm only requires $\bigO{n^2}$ operations. As stated
+previously, it does not admit false negatives --- if $AB = C$, it will never
+output \False, because we must have $AB\vec{r} = C\vec{r}$ for all $\vec{r}$.
+
+Let us determine the probability that this algorithm outputs \True when $AB \neq
+C$. Write $D = AB - C \neq 0_{n,n}$, and observe that $D$ must have at least one
+non-zero entry. Without loss of generality, say it is $d_{1,1}$. Now, if
+$AB\vec{r} = C\vec{r}$, then $D\vec{r} = \vec{0}$. In particular, writing
+$\vec{r} = (r_1, r_2, \dots, r_n)$, we must have
+\begin{align*}
+    d_{1,1}r_1 + d_{1,2}r_2 + \dots + d_{1,n}r_n = 0\\
+    r_1 = \frac{-1}{d_{1,1}}\sum_{i=2}^n d_{1,i}r_i
+\end{align*}
+
+To determine the probability that $r_1$ is equal to this value, we apply the
+\emph{Principle of Deferred Decisions}
+\begin{definition}{Principle of Deferred Decisions}{}
+    The \emph{Principle of Deferred Decisions} states that, in the analysis of a
+    randomized algorithm, we can \emph{defer} random choices until they are
+    revealed to the algorithm.  
+\end{definition}
+
+In this specific case, we can assume $r_2$, $r_3$, \dots, $r_n$ have already
+been assigned their random values. Clearly, then, the probability that $r_1$ is
+equal to $\frac{-1}{d_{1,1}}\sum_{i=2}^n d_{1,i}r_i$ is \emph{at most}
+$\sfrac{1}{2}$. 
+
+This gives us an upper bound on the probability of a false positive. In
+particular, after repeating the algorithm $k$ times, the probability of a false
+positive is at most $\sfrac{1}{2^k}$. Setting $k = \log{n}$ yields the desired
+upper bound of $\sfrac{1}{n}$. In other words, the following pseudocode verifies
+matrix multiplication with high probability
+
+\begin{algorithm}
+    \caption{Verify Matrix Multiplication with High probability}
+    \begin{algorithmic}[1]
+        \Function{Rand-Matrix-Mult-Verify-WHP}{A, B, C}
+            \ForRange{$i$}{1}{$\log{n}$}
+                \State $\texttt{result} \gets \Call{Rand-Matrix-Mult-Verify}{A, B, C}$
+                \If{$\texttt{result}$ is \False}
+                    \State \Return \False
+                \EndIf
+            \EndForRange
+            \State \Return \True
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Verifying Equality of Binary Strings}
+\begin{problem}{Verifying Equality of Binary Strings}{}
+    Given strings
+    \begin{align*}
+        \texttt{X} &= \texttt{x}_0 \texttt{x}_1 \dots \texttt{x}_{n-1}\\
+        \texttt{Y} &= \texttt{y}_0 \texttt{y}_1 \dots \texttt{y}_{n-1} 
+    \end{align*}
+    Determine if $X = Y$, i.e., if there exists an $i$ such that $\texttt{x}_i
+    \neq \texttt{y}_i$.
+\end{problem}
+
+Here, we are interested in \emph{communication complexity}. Specifically suppose
+Alice has string $\texttt{X}$ and Bob has string $\texttt{Y}$, and they wish to
+determine if their strings are equal by transmitting a message of $k$ bits.
+
+Clearly, there is a naive deterministic algorithm that requires $\bigO{n}$ time
+by simplying comparing all $n$ bits. In fact, \emph{every} deterministic
+algorithm requires $\bigOm{n}$ bits. However, we can construct a randomized
+algorithm, via a technique called \emph{fingerprinting}, that requires
+$\bigO{\log{n}}$ bits.
+
+For a prime $p \in \set{1, 2, \dots, k}$, let us define $F_p(x) = x \bmod p$.
+Additionally, we will identify the values $\texttt{X}$ and $\texttt{Y}$ by the
+numerical value of their binary strings, that is,
+\begin{align*}
+    \texttt{X} &= \sum_{i=0}^{n-1}\texttt{x}_i 2^i\\
+    \texttt{Y} &= \sum_{i=0}^{n-1}\texttt{y}_i 2^i 
+\end{align*}
+If $F_p(\texttt{X}) \neq F_p(\texttt{Y})$, then we output \False, otherwise we
+output \True. Again, this admits no false negatives, since if $\texttt{X} =
+\texttt{Y}$, $F_p(\texttt{X}) = F_p(\texttt{Y})$ for any function $F_p$.
+
+Observe that, if $F_p(\texttt{X}) = F_p(\texttt{Y})$, then
+\[\sum_{i=0}^{n-1}\left(\texttt{x}_i - \texttt{y}_i\right) 2^i \bmod p = 0\]
+Additionally, notice that
+\[\sum_{i=0}^{n-1}\left(\texttt{x}_i - \texttt{y}_i\right) 2^i \leq 2^n\]
+In particular, there are at most $n$ prime factors of
+$\sum_{i=0}^{n-1}\left(\texttt{x}_i - \texttt{y}_i\right) 2^i$. Letting $\pi(k)$
+denote the number of primes less than or equal to $k$, we have
+\begin{align*}\prob{F_p(\texttt{X}) \neq F_p(\texttt{Y}) \given \texttt{X} \neq \texttt{Y}}
+    &\leq \frac{n}{\pi(k)}\\
+    &\approx \frac{n\ln{k}}{k}
+\end{align*}
+Taking $k = n^2\ln{n}$ yields
+\[\prob{F_p(\texttt{X}) \neq F_p(\texttt{Y}) \given \texttt{X} \neq \texttt{Y}} \leq \frac{1}{n}\]
+
+\subsection{Binary Consensus}
+\begin{problem}{Binary Consensus}{}
+    Given $n$ parties, of which at most $f$ are faulty (and can crash at any
+    time), and who each hold a 0 or 1, Consensus is reached when:
+    \begin{enumerate}
+        \item Agreement --- all non-faulty parties agree to the same bit
+        \item Validity --- if all parties start with a value, all parties must
+              agree on that value
+        \item Termination --- all parties terminate in finite time
+    \end{enumerate}
+\end{problem}
+
+Let us assume that communication is asynchronous and that all nodes can
+communicate with all other nodes (i.e., the network is a complete graph).
+%TODO drawing
+
+With \emph{no faults}, it is sufficient for each node to simply broadcast their
+value and take the majority, breaking ties with 1. However, with even a single
+fault, this problem \emph{cannot} be solved deterministically. Additionally, no
+randomized algorithm can solve this problem when there are at least
+$\sfrac{n}{2}$ faults.
+
+%TODO prove the above for randomized.

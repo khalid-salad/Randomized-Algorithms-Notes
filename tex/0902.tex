@@ -1,0 +1,47 @@
+\section{09/02}
+The Ben-Or algorithm can be used to solve Binary Consensus with faults.
+\begin{algorithm}
+    \caption[\AlgName{Ben-Or}]{Ben-Or Algorithm from view of processor $p$ with initial value $\chi_p$}
+    \label{alg:ben-or}
+    \begin{algorithmic}[1]
+        \Procedure{\nameref*{alg:ben-or}}{}
+            \State $\texttt{decided} \gets \False$
+            \State $\texttt{round} \gets 1$
+            \While{not \texttt{decided}}
+                \State $\Call{Broadcast}{1, \texttt{round}, \chi_p}$
+                \State wait for $n - f$ messages of type $(1, \texttt{round}, \cdot)$
+                \If{there are more than $\sfrac{n}{2}$ messages of type $(1, \texttt{round}, v)$}
+                    \State $\Call{Broadcast}{2, \texttt{round}, D, v}$
+                \Else
+                    \State $\Call{Broadcast}{2, \texttt{round}, U}$
+                \EndIf
+                \State wait for $n - f$ messages of type $(2, \texttt{round}, \cdot)$
+                \State $t \gets$ number of messages of type $(2, \texttt{round}, D, v)$
+                \If{$t > 0$}
+                    \State $\chi_p \gets v$
+                    \If{$t > f$}
+                        \State $\texttt{decided} \gets \True$
+                        \State $\Call{Broadcast}{1, \texttt{round}, \chi_p}$
+                    \EndIf
+                \Else \Comment{All messages are of type $(2, \texttt{round}, U)$}
+                    \State $\chi_p \gets \Call{Sample}{\set{0,1}}$
+                \EndIf
+                \State $\texttt{round} \gets \texttt{round} + 1$
+            \EndWhile
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+\begin{theorem}{}{}
+    The above algorithm is correct.
+\end{theorem}
+
+\begin{proof}
+    Validity is clear: if all nodes start with $v$, then we skip to 
+    %TODO finish proof
+\end{proof}
+
+\begin{theorem}{}{}
+    The expected number of rounds of \nameref{alg:ben-or} is $2^{n-1}$.
+    Additionally, with high probability, the number of rounds is less than
+    $2^{n-1}\ln{n}$.
+\end{theorem}

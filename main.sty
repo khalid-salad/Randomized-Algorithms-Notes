@@ -1,5 +1,6 @@
 \ProvidesPackage{main}
 \RequirePackage[l2tabu, orthodox]{nag}
+\usepackage[english]{babel}
 \usepackage{amssymb,amsmath,amsthm,amsfonts,mathrsfs,xcolor}
 \usepackage[a4paper,margin=1in]{geometry}
 \usepackage{ifthen}
@@ -140,3 +141,5 @@
 \makeatletter
 \renewcommand{\todo}[2][]{\tikzexternaldisable\@todo[#1]{#2}\tikzexternalenable}
 \makeatother
+
+\renewcommand{\vec}[1]{\mathbf{#1}}
