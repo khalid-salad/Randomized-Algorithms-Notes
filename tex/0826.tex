@@ -62,11 +62,17 @@ What is the probability, then, that our algorithm fails after $k$ iterations of
 bounded above by
 \begin{align*}\prob{\text{failure}}
     &\leq \left(1 - \frac{3}{20}\right)^k\\
-    &\leq e^{-\frac{3}{2}k}
+    &\leq e^{-\frac{3}{20}k}
     \shortintertext{Setting $k = \frac{20}{3}\ln{n}$,}\\
     &= e^{-\ln{n}}\\
     &=\frac{1}{n}
 \end{align*}
+
+\subsection{Baye's Law}
+\begin{theorem}{Baye's Law}{}
+    For any events $A$ and $B$,
+    \[\prob{A \given B} = \frac{\prob{B \given A} \prob{A}}{\prob{B}}\]
+\end{theorem}
 
 \subsection{Concepts in Randomized Algorithms}
 \begin{definition}{}{}
@@ -92,4 +98,35 @@ Let us define
     E_2 &= \hbox{event that all $n$ elements are distinct}
 \end{align*}
 
+At first, our ``belief'' in $E_1$ and $E_2$ are approximately the same, i.e., we
+have no information to determine which event is more likely. However, let us
+assume we have sampled two elements with replacement and determined that they
+are not equal (call this event $F$). We can update our ``belief'' via Baye's
+Law.
+\begin{align*}\prob{E_1 \given F}
+    &= \frac{\prob{F \given E_1} \prob{E_1}}{\prob{F}}\\
+    &\leq \frac{\left(1 - \frac{3}{20}\right) \cdot \frac{1}{2}}{\left(1 - \frac{3}{20}\right) \cdot \frac{1}{2} + \frac{1}{2}}\\
+    &= \frac{17}{37}
+\end{align*}
+Thus, we see that the probability has shifted from ``50-50'' to skewing \emph{in
+favor} of the belief that $E_2$ has occurred.
 
+\subsection{Law of Total Probability}
+\begin{theorem}{Law of Total Probability}{}
+    For any event $A$ and any countable partition of the sample space $B_1$,
+    $B_2$, \dots, that is, the events $B_i$ are pairwise disjoint and their
+    union forms the entire sample space, we have
+    \[\prob{A} = \sum_i \prob{A \cap B_i} = \sum_i \prob{A \given B_i} \prob{B_i}\]
+\end{theorem}
+
+\subsection{Naive Bayesian Classifier}
+A Naive Bayesian Classifier is a classic example of how we can apply
+probabilistic techniques and Baye's Law in practice. Suppose we have a
+\emph{feature set} $e$, a vector of boolean $n$ boolean variable. These could
+be, for example, whether a certain keyword appears in an email in an attempt to
+detect spam. Then, assuming the independence of the boolean variables (this is
+why it is referred to as \emph{naive}), we have
+\begin{align*}\prob{E \given e = (b_1, b_2, \dots, b_n)}
+    &= \frac{\prob{e = (b_1, b_2, \dots, b_n) \given E} \prob{E}}{\prob{e = (b_1, b_2, \dots, b_n)}}\\
+    &= \frac{\prob{b_1 \given E} \cdot \prob{b_2 \given E} \cdots \prob{b_n \given E} \cdot \prob{event}}{\prob{e = (b_1, b_2, \dots, b_n)}}
+\end{align*}
