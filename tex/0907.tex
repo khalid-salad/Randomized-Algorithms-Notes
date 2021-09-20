@@ -1,0 +1,207 @@
+\section{09/07}
+\begin{definition}{Random Variable}{}
+    A \emph{random variable} is a function from some sample space $S$ to a set
+    of numbers.
+\end{definition}
+
+\begin{definition}{Probability of a Random Variable}{}
+    Let $X:\Omega \to E$ be some random variable and let $S \subseteq E$. Then
+    \[\prob{X \in S} = \prob{\omega \in \Omega \suchthat X(\omega) \in S}\]
+    If $S$ is a discrete probability space, then
+    \[\prob{X = r} = \sum_{X(\omega) = r}\prob{\omega}\]
+\end{definition}
+
+For example, let us roll a fair die and say, should you roll $i$, you receive
+$i^2$ dollars. We can define the random variable $X$ to be the money received in
+this dice game. Then
+\[\prob{X = 25} = \prob{\text{roll} = 5} = \frac{1}{6}\]
+
+On the other hand, say you receive $i$ dollars (that is, the face of the die
+roll). Then
+\[\prob{X \equiv 0 \bmod{2}} = \prob{\text{die} \in \set{2, 4, 6}} = \frac{1}{2}\]
+
+Suppose we additionally roll a second die and call the random variable equal to
+the face-value of this die $Y$. What is $\prob{X + Y = 7}$? Say $R(i, j)$ is the
+event that the first die rolls $i$ and the second rolls $j$. Then
+
+\begin{align*}
+    \prob{X + Y = 7} &= \prob{R(1, 6) \cup R(2, 5) \cup R(3, 4) \cup R(4, 3) \cup R(5, 2) \cup R(6, 1)}\\
+                    &= \prob{R(1, 6)} + \prob{R(2, 5)} + \prob{R(3, 4)} + \prob{R(4, 3)} + \prob{R(5, 2)} + \prob{R(6, 1)}\\
+                    &= \frac{6}{36}\\
+                    &= \frac{1}{6}
+\end{align*}
+
+\subsection{Expected Value}
+\begin{definition}{Expected Value}{}
+    Let $X$ be a discrete random variable on a sample space $S$. The
+    \emph{expected value} (also called mean or average) of $X$ is defined
+    \[\expectation{X} = \sum_{r\in X(S)}r\prob{X = r}\]
+\end{definition}
+For example, if $X$ is the face-value of a fair die, then
+\[\expectation{X} = \sum_{i=1}^6i\prob{X = i} = 1\cdot\frac{1}{6} + 1\cdot\frac{1}{6} + \dots + 6\cdot\frac{1}{6} = \frac{7}{2}\]
+Notice that $\sfrac{7}{2}$ is \emph{not} an event in our sample space. In
+general, the expectation does not need to be a value that can be ``achieved.''
+Instead, the Law of Large Numbers formalizes the idea of what expectation is.
+
+\begin{theorem}{Law of Large Numbers}{}
+    Let $X_1$, $X_2$, \dots, $X_n$ denote the outcomes of $n$ independent
+    experiments, and suppose that experiment has expected value $\mu$. Let
+    $\overline{X}_n$ denote our \emph{sample mean}, i.e., write
+    \[\overline{X}_n = \frac{1}{n}\sum_{i=1}^nX_i\]
+    Then
+    \[\lim_{n \to \infty}\prob{\overline{X}_n = \mu} = 1\]
+\end{theorem}
+
+Consider the following game: flip two fair coins. If both come up heads, win
+\$2, otherwise lose \$1. Let $X$ denote the amount of money the player wins.
+Then
+\[\expectation{X} = 2 \cdot \frac{1}{4} + -1\cdot\frac{3}{4} = \frac{-1}{4}\]
+
+We can define independence for random variables in the same way we did for
+events.
+\begin{definition}{Independent Random Variables}{}
+    Two random variables $X$ and $Y$ on a sample space $S$ are independent if
+    \[\prob{X = x \cap Y = y} = \prob{X = x}\prob{Y = y}\]
+    for all $x \in X(S)$ and $y \in Y(S)$
+\end{definition}
+
+\subsection{Linearity of Expectation}
+The following theorem proves very useful in analyzing randomized algorithms.
+\begin{theorem}{Linearity of Expectation}{linexp}
+    For any random variables $X$ and $Y$ and real value $c$
+    \begin{align*}
+        \expectation{X + Y} &= \expectation{X} + \expectation{Y}\\
+        \expectation{cX} &= c\expectation{X}
+    \end{align*}
+\end{theorem}
+
+\begin{proof}
+    By definition
+    \begin{align*}\expectation{X + Y}
+        &= \sum_{x \in X(S)}\sum_{y \in Y(S)} (x + y)\prob{X = x \cap Y = y}\\
+        &= \sum_{x \in X(S)}\sum_{y \in Y(S)} x\prob{X = x \cap Y = y} + \sum_{x \in X(S)}\sum_{y \in Y(S)}y\prob{X = x \cap Y = y}\\
+        &=\sum_{x \in X(S)}\sum_{y \in Y(S)} x\prob{X = x \cap Y = y} + \sum_{y \in Y(S)}\sum_{x \in X(S)}y\prob{X = x \cap Y = y}\\
+        &=\sum_{x \in X(S)}x\sum_{y \in Y(S)} \prob{X = x \cap Y = y} + \sum_{y \in Y(S)}y\sum_{x \in X(S)}\prob{X = x \cap Y = y}\\
+        &=\sum_{x \in X(S)}x\prob{X = x} + \sum_{y \in Y(S)}y\prob{Y = y} \hbox{ by the law of total probability}\\
+        &=\expectation{X} + \expectation{Y}
+    \end{align*}
+    Similarly,
+    \begin{align*}\expectation{cX}
+        &=\sum_{x \in X(S)}cx\prob{X = x}\\
+        &=c\sum_{x \in X(S)}x\prob{X = x}\\
+        &=c\expectation{X}\qedhere
+    \end{align*}
+\end{proof}
+
+The power of \nameref{thm:linexp} can be seen by considering the following
+scenario: suppose we flip $n$ fair coins and wish to count the expected number
+of heads, $X$. Without \cref{thm:linexp}, this is
+\[\expectation{X} = \sum_{i=0}^ni\binom{n}{i}\left(\frac{1}{2}\right)^n\]
+a computationally difficult expression. On the other hand, if we let $X_i$
+denote the following random variable
+\[X_i = \begin{cases}1 & \hbox{coin $i$ lands heads}\\
+                     0 & \hbox{otherwise}\end{cases}\]
+It should be quite clear that
+\[X = \sum_{i=1}^n X_i\]
+Now,
+\begin{align*}\expectation{X_i}
+    &=1\prob{X_i = 1} + 0\prob{X_i = 0}\\
+    &=\frac{1}{2}
+\end{align*}
+hence
+\[\expectation{X} = \sum_{i=1}^n\expectation{X_i} = \frac{n}{2}\]
+an almost \emph{trivial} computation.
+
+The above random variable $X_i$ is called a Bernoulli or \emph{indicator} random
+variable, since it \emph{indicates} whether the desired outcome occurred. In
+general, if $X$ is an indicator random variable, then 
+\[\expectation{X} = \prob{X = 1}\]
+
+We can similarly demonstrate the power of \nameref{thm:linexp} with the
+following problem: suppose $n$ people arrive at a party and drop off their
+coats, for which they receive a receipt. Unfortunately, the attendant loses all
+of the stubs and decides to assign the party-goers coats at random. What is the
+expected number of people who receive their original coat?
+
+Let $X$ denote the number of people who receive their own coats. Then
+\[\expectation{X} = \sum_{i=0}^n i \prob{X = i}\]
+Notice that, for general $i$, this is impractical to determine. In fact, the
+number $D_{n, k}$ is called a \emph{rencontres number}, and denote the number of
+permutations of $\set{1, 2, \dots, n}$ with exactly $k$ fixed points. This can
+be recursively computed with
+\[D_{n, k} = \binom{n}{k}D_{n-k,0}\]
+However, we can determine $\expectation{X}$ by applying \nameref{thm:linexp}.
+Define
+\[X_i = \begin{cases}1 & \hbox{person $i$ receives their own coat}\\
+    0 & \hbox{otherwise}\end{cases}\]
+and observe that $X = \sum X_i$. Additionally,
+\[\expectation{X_i} = \prob{X_i = 1} = \frac{(n - 1)!}{n!} = \frac{1}{n}\]
+from which it follows that
+\[\expectation{X} = \sum_{i=1}^n \expectation{X_i} = n\frac{1}{n}=1\]
+
+\subsection{3-SAT}
+\begin{problem}{Boolean Satisfiability}{}
+    Given a boolean formula, determine if there exists an assignment of the
+    variables that causes the formula to evaluate to \True.
+\end{problem}
+A formula is in \emph{Conjunctive Normal Form} (CNF) if it can be written as a
+disjunction of conjunctions, that is, a formula $B$ is in CNF if
+\[B = T_1 \land T_2 \land \dots \land T_n\]
+and each $T_i$ is of the form $t_1 \lor t_2 \lor \dots \lor t_i$. We say a
+formula is $k$-CNF if each $T_i$ consists of exactly $k$ conjunctions. 
+
+It turns out that this problem is equivalent to the \emph{3-SAT} problem.
+\begin{theorem}{}{}
+    Given a boolean formula $B$, there is an \emph{equisatisfiable} formula $B'$
+    in 3CNF whose length is at most 3 times that of $B$. That is, the formula
+    $B$ is satisfiable if and only if $B'$ is satisfiable.  
+\end{theorem}
+\begin{proof}
+    Consider some clause of conjunctions $l_1 \lor l_2 \lor \dots \lor l_n$.
+    The formula
+    \begin{align*}
+              & (l_1 \lor l_2 \lor x_2)\\
+        \land & (\neg x_2 \lor l_3 \lor x_3)\\
+        \land & (\neg x_3 \lor l_4 \lor x_4)\\
+        \vdots &\\
+        \land & (\neg x_{n-3} \lor l_{n-2} \lor x_{n-2})\\
+        \land & (\neg x_{n-2} \lor l_{n-1} \lor l_n)
+    \end{align*}
+    is equisatisfiable to the clause.
+\end{proof}
+
+\begin{problem}{Max 3-SAT}{}
+    Given a 3-SAT problem, find an assignment of the variables that
+    \emph{maximizes} the number of clauses that evaluate to \True.
+\end{problem}
+
+Consider an algorithm where we simply assign each variable 0 or 1 at random. For
+clause $i$, define
+\[X_i = \begin{cases}1 & \hbox{clause $i$ is satisfied}\\
+                     0 & \hbox{otherwise}\end{cases}\]
+And set $X = \sum X_i$ to be the number of satisfied clauses. Suppose clause $i$
+is $a \lor b \lor c$. Then
+\begin{align*}\expectation{X_i}
+    &= \prob{a \lor b \lor c}\\
+    &= 1 - \prob{\neg a \land \neg b \land \neg c}\\
+    &= 1 - \left(\frac{1}{2}\right)^3\\
+    &= \frac{7}{8}
+\end{align*}
+Thus
+\[\expectation{X} = \sum_{i=1}^m \expectation{X_i} = \frac{7m}{8}\]
+
+\subsection{Probabilistic Method}
+The \emph{Probabilistic Method} is a nonconstructive method to demonstrate the
+existence of some sort of mathematical object. This is done by creating a
+probability distribution on some sample space and showing that such an object
+exists with probability greater than 0, from which you conclude that at least
+one such object exists.
+
+\begin{theorem}{}{}
+    There is at least one assignment of variables that has $\sfrac{7m}{8}$ true
+    clauses.
+\end{theorem}
+
+To see this, simply note that if $\expectation{X} = \mu$, there must be at least
+one value in the sample space whose value is greater than or equal to $\mu$ and
+at least one whose value is less than or equal to $\mu$.

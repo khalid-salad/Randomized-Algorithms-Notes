@@ -45,3 +45,80 @@ The Ben-Or algorithm can be used to solve Binary Consensus with faults.
     Additionally, with high probability, the number of rounds is less than
     $2^{n-1}\ln{n}$.
 \end{theorem}
+
+\begin{proof}
+    If all nodes are of type $(2, \texttt{round}, ?)$, then with probability
+    $\sfrac{2}{2^n} = \sfrac{1}{2^{n-1}}$ all nodes will choose the same value.
+    Thus, we can upper bound the probability of failure after $k$ rounds by
+    \begin{align*}\prob{\text{failure}}
+        &\leq \left(1 - \frac{1}{2^{n-1}}\right)^k \leq e^{\frac{-k}{2^{n-1}}}\\
+        \shortintertext{setting $k=2^{n-1}\ln{n}$}
+        &=\frac{1}{n}
+    \end{align*}
+    Thus, the probability of success after $2^{n-1}\ln{n}$ rounds is at least $1
+    - \sfrac{1}{n}$. Additionally, the expected number of rounds is at most
+    $2^{n-1}$.
+\end{proof}
+
+\subsection{Graphs}
+\begin{problem}{Min-Cut}{}
+    Given a graph $G = (V, E)$, find a minimum set of \emph{edges} whose removal
+    disconnects the graph.
+\end{problem}
+
+\begin{definition}{Graph Cut}{}
+    A \emph{cut} is a partition of the vertices into two non-empty subsets, $A$
+    and $B$.
+\end{definition}
+
+Notice that any edge from $A$ to $B$ crosses the cut, and when all such edges
+are removed, the graph becomes disconnected. 
+
+%TODO example figures
+
+In general, there are $\binom{n}{2}$ possible min-cuts.
+
+%TODO draw cycle
+
+\begin{algorithm}
+    \caption{Karger's Algorithm}
+    \label{alg:karger}
+    \begin{algorithmic}[1]
+        \Procedure{Karger}{}
+            \ForRange{$i$}{1}{$n - 2$}
+                \State Choose a random edge $e$ \label{line:kargersample}
+                \State Contract edge $e$ \label{line:kargercontraction}
+            \EndForRange
+            \State Output remaining edges
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+Observe that \cref{line:kargersample} requires $\bigO{1}$ operations and
+\cref{line:kargercontraction} requires $\bigO{n}$ operations, for a total of
+$\bigO{n^2}$. Additionally, a cut set in the contracted graph is a cut set in
+the original graph, thus we can only \emph{increase} the size of the min-cut via
+\cref{line:kargercontraction}.
+
+\begin{theorem}{}{}
+    \nameref{alg:karger} outputs a min-cut with probability at least
+    $\sfrac{1}{n^2}$.
+\end{theorem}
+
+\begin{proof}
+    Suppose $C$ is some min-cut in $G$ and write $\card{C} = k$. In that case,
+    every node must have degree at least $k$, and $m \geq \sfrac{nk}{2}$. 
+
+    Let $E_i$ denote the event that no edge in $C$ is contracted in iteration
+    $i$. Notice that the event that $C$ is output is simply
+    \begin{align*}\prob{\bigcap E_i}
+        &=\prob{E_1}\prob{E_2 \given E_1}\cdots\prob{E_{n-1} \given E_1 \cap E_2 \cap \dots \cap E_{n - 2}}\\
+        &=\left(1 - \frac{2}{n}\right)\left(1 - \frac{2}{n-1}\right)\cdots\left(\frac{2}{3}\right)\\
+        &=\frac{2}{n(n-1)}\\
+        &=\frac{1}{\binom{n}{2}}\\
+        &\geq\frac{1}{n^2}
+    \end{align*}
+\end{proof}
+
+Thus, we can repeat this process $n^2\ln{n}$ times to achieve a high probability
+that the algorithm outputs a min-cut.

@@ -1,0 +1,91 @@
+\section{09/16}
+\subsection{Randomized Quicksort}
+The following pseudocode demonstrates our randomized Quicksort variant.
+
+\begin{algorithm}[H]
+    \caption{Simplified variant of Quicksort algorithm with random pivot.}
+    \label{alg:randquicksort}
+    \begin{algorithmic}[1]
+        \Function{Rand-Quicksort}{\texttt{arr}}
+            \State $n \gets \Call{Len}{\texttt{arr}}$
+            \If{$n \leq 1}$
+                \State \Return \texttt{arr}
+            \Else
+                \State $\texttt{left}, P, \texttt{right} \gets \Call{Partition}{\texttt{arr}}$
+                \State \Return $\Call{Rand-Quicksort}{\texttt{left}} + P + \Call{Rand-Quicksort}{\texttt{right}}$
+            \EndIf
+        \EndFunction
+        \Function{Partition}{\texttt{arr}}
+            \State $\texttt{pivot} \gets \Call{Sample}{\texttt{arr}}$
+            \State $\texttt{left}, P, \texttt{right} \gets [], [], []$
+            \For{$a \in \texttt{arr}}$
+                \If{$a < \texttt{pivot}}$
+                    \State $\texttt{left}.\Call{Append}{a}$
+                \ElsIf{$a = \texttt{pivot}$}
+                    \State $P.\Call{Append}{a}$
+                \Else
+                    \State $\texttt{right}.\Call{Append}{a}$
+                \EndIf
+            \EndFor
+            \State \Return $\texttt{left}, P, \texttt{right}$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+Notice that the algorithm is identical to~\cref{alg:quicksort}, except for the
+partition choice. Later, we will apply Chernoff Bounds to show that, with high
+probability, the number of comparisons is $\bigO{n\log{n}}$.
+
+Let us consider the original algorithm once more, wherein the pivot is always
+taken to be $\texttt{arr}[0]$. Suppose the input is a randomly selected
+\emph{permutation} of the array. We can now determine the expected number of
+comparisons of this algorithm (this is commonly called \emph{average case} or
+\emph{probabilistic} analysis). 
+
+In randomized Quicksort, the analysis is with respect to the \emph{random pivot
+choice}. On the other hand, here we are analyzing with respect to the
+\emph{random input}.
+
+However, the analysis is largely the same. Again, we let $X_{i,j}$ be the
+indicator random variable equal to 1 when elements $a_i$ and $a_j$ are compared.
+These elements will be compared when $a_i$ occurs before $a_j$ (or vice-versa)
+in the permutation, and none of $a_{i+1}$, $a_{i+2}$, \dots, $a_{j - 1}$ are
+chosen first. Apply the principle of deferred decisions and assume all values,
+other than $a_i$, $a_{i+1}$, \dots, $a_j$ have been placed. There are $(j - i +
+1)!$ permutations of these values, of which $2(j - i - 1)!$ have $a_i$ or $a_j$
+first. Thus,
+\[\expectation{X_{i,j}} = \frac{2(j - i - 1)}{(j - i + 1)} = \frac{2}{(j - i + 1)}\]
+from which the result follows.
+
+\subsection{Selection Algorithm}
+\begin{problem}{Selection}{}
+    Given an array of length $n$, find the $k$-th smallest element of $n$.
+\end{problem}
+We can apply an algorithm similar to Quicksort: select a pivot and partition the
+array. If the number of elements less than the pivot is $k - 1$, then the pivot
+is the $k$-th smallest. Otherwise, the desired element falls in the left or
+right partition. 
+
+\begin{algorithm}[H]
+    \caption{Simplified variant of Quickselect algorithm with random pivot.}
+    \label{alg:randquickselect}
+    \begin{algorithmic}[1]
+        \Function{Rand-Quickselect}{\texttt{arr}}
+            \State $n \gets \Call{Len}{\texttt{arr}}$
+            \If{$n \leq 1}$
+                \State \Return \texttt{arr}
+            \Else
+                \State $\texttt{left}, P, \texttt{right} \gets \Call{Partition}{\texttt{arr}}$
+                \State $\ell \gets \Call{Length}{\texttt{left}}$
+                \State $p \gets \Call{Length}{P}$
+                \If{$\ell \geq k$}\Comment{$k$-th smallest is in \texttt{left}}
+                    \State \Return $\Call{Rand-Quickselect}{\texttt{left}, k}$
+                \ElsIf{$\ell + p < k$}\Comment{$k$-th smallest is in \texttt{right}}
+                    \State \Return $\Call{Rand-Quickselect}{\texttt{right}, k - \ell - p}$
+                \Else
+                    \State \Return \texttt{pivot}
+                \EndIf
+            \EndIf
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}

@@ -9,6 +9,19 @@
 \usepackage{xparse, xspace}
 \usepackage[inline]{enumitem}
 \theoremstyle{plain}
+\usepackage{calc}
+\usepackage{booktabs, multicol, multirow, adjustbox, blkarray}
+\usepackage{chessfss}
+\usepackage{mleftright}
+\usepackage{subcaption}
+\mleftright
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{keyval}
+\usepackage{textcomp}
+\usepackage{layout}
+\usepackage{xfrac}
+\UseCollection{xfrac}{plainmath}
 \usepackage{tikz, pgfplots, fp}
 \pgfplotsset{compat=newest}
 \usepackage{tcolorbox}
@@ -32,6 +45,7 @@
 \usepackage[colorlinks=true]{hyperref}
 \usepackage[noabbrev,capitalize]{cleveref}
 \crefname{line}{line}{lines}
+\Crefname{line}{line}{lines}
 \crefname{ineq}{Inequality}{Inequalities}
 \creflabelformat{ineq}{#2{\upshape(#1)}#3}
 \crefname{func}{Function}{Functions}
@@ -44,19 +58,7 @@
 \newtcbtheorem[number within=section]{wexercise}{Worked Exercise}{nobeforeafter,breakable,colframe=green!60!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{wexe}
 \newtcbtheorem[number within=section]{exercise}{Exercise}{nobeforeafter,breakable,colframe=red!35!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{exe}
 \newtcbtheorem[number within=section,crefname={Problem}{Problems},Crefname={Problem}{Problems}]{problem}{Problem}{breakable,colback=red!5,colframe=red!60!black,fonttitle=\bfseries, separator sign={~$\blacktriangleright$}}{prob}
-\usepackage{calc}
-\usepackage{booktabs, multicol, multirow, adjustbox, blkarray}
-\usepackage{chessfss}
-\usepackage{mleftright}
-\usepackage{subcaption}
-\mleftright
-\usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
-\usepackage{keyval}
-\usepackage{textcomp}
-\usepackage{layout}
-\usepackage{xfrac}
-\UseCollection{xfrac}{plainmath}
+
 
 
 
@@ -101,6 +103,7 @@
 \algrenewtext{ElsIf}[1]{\algorithmicelse~\algorithmicif~#1:}
 \algrenewtext{Else}{\algorithmicelse:}
 \algrenewtext{Function}[2]{\textbf{Function}~\textproc{\AlgName{#1}}(#2):}
+\algrenewtext{Procedure}[2]{\textbf{Procedure}~\textproc{\AlgName{#1}}(#2):}
 \algrenewtext{Loop}{\algorithmicloop:}
 % \algrenewtext{Function}[2]{\textbf{def}~\textproc{\AlgName{#1}}(#2):}
 % \algrenewtext{Procedure}[2]{\textbf{def}~\textproc{\AlgName{#1}}(#2):}

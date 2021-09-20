@@ -1,0 +1,210 @@
+\section{09/09}
+We can apply the algorithm given previously to actually \emph{find} an
+assignment of the boolean variables which will satisfy at least $\sfrac{7m}{8}$
+clauses. Specifically, consider the following algorithm
+\begin{algorithm}
+    \caption{Randomized Max 3-SAT Algorithm}
+    \begin{algorithmic}[1]
+        \Function{Solve}{\texttt{formula}}
+            \State $\texttt{result} \gets 0$
+            \While{$\texttt{result} < \sfrac{7m}{8}$}
+                \State $\texttt{bool-vec}, \texttt{result} \gets \Call{Try-Solve}{\texttt{formula}}$
+            \EndWhile
+            \State \Return \texttt{bool-vec}
+        \EndFunction
+        \Function{Try-Solve}{\texttt{formula}}
+            \State $\texttt{bool-vec} \gets \Call{Sample}{\set{0,1}^n}$
+            \State $k \gets$ number of satisfied clauses in \texttt{formula}
+            \State \Return $(\texttt{bool-vec}, k)$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+Clearly, the above algorithm will \emph{eventually} return the desired boolean
+vector. However, we are concerned with how many iterations this algorithm will
+require. To determine this, we must first determine the probability that the
+randomly selected boolean vector will satisfy at least $\sfrac{7m}{8}$ clauses.
+
+Let $X$ represent the number of satisfied clauses. Recall that $\expectation{X}
+= \sfrac{7m}{8}$. Let us call this value $\mu$. Then
+\begin{align*}\mu
+    &= \expectation{X}\\
+    &= \sum_{x=0}^m x\prob{X = x}\\
+    &= \sum_{x < \mu} x\prob{X = x} + \sum_{x \geq \mu} x\prob{X = x}\\
+    \shortintertext{Notice that, since $x < \mu$, $x \leq \mu - c$ for some constant $0 < c \leq 1$}
+    &\leq \left(\mu - c\right)\sum_{x < \mu}\prob{X = x} + m\sum_{x \geq \mu} \prob{X = x}\\
+    \shortintertext{setting $p = \prob{X \geq \mu}$}\\
+    &= (\mu - c)(1 - p) + mp
+    \shortintertext{Solving for $p$}\\
+    p &\geq \frac{c}{c - \mu + m}\\
+      &= \bigTh{\frac{1}{m}}
+\end{align*}
+
+Before we finish this analysis, we should consider the Geometric Random
+Variable.
+
+\subsection{Geometric Random Variable}
+\begin{definition}{Geometric Random Variable}{}
+    Consider some Bernoulli trial, i.e., an event with exactly two possible
+    outcomes, denotes ``success'' and ``failure'', and suppose success occurs
+    with probability $p$. The \emph{Geometric Distribution}, denoted $X \sim
+    G(p)$, is the number of trials necessary until a success occurs. 
+\end{definition}
+
+\begin{lemma}{}{}
+    Let $X$ be some discrete random variable that takes integer values. Then
+    \[\expectation{X} = \sum_{x = 1} \prob{X \geq x}\]
+\end{lemma}
+
+\begin{proof}
+    \begin{align*}\expectation{X}
+        &= \sum_{x=1}^{\infty}x \prob{X=x}\\
+        &= \sum_{x=1}^{\infty}\sum_{i=1}^x \prob{X=x}\\
+        &= \sum_{x=1}^{\infty}\sum_{i=x}^{\infty}\prob{X=i}\\
+        &= \sum_{x=1}^{\infty}\prob{X \geq x}
+    \end{align*}
+\end{proof}
+
+\begin{theorem}{Expectation of Geometric Random Varaible}{}
+    Let $X \sim G(p)$. Then $\expectation{X} = \frac{1}{p}$.
+\end{theorem}
+
+\begin{proof}
+    Observe that $\prob{X = k} = (1 - p)^{k - 1}p$, hence
+    \[\prob{X \geq k} = (1 - p)^{k - 1}\]
+    and
+    \begin{align*}\expectation{X}
+        &= \sum_{k=1}^{\infty} k\prob{X = k}\\
+        &= \sum_{k=1}^{\infty} \prob{X \geq k}\\
+        &= \sum_{k=1}^{\infty} (1 - p)^{i - 1}\\
+        &= \frac{1}{1 - (1 - p)}\\
+        &= \frac{1}{p}
+    \end{align*}
+\end{proof}
+
+Now, returning to our Max 3-SAT algorithm, notice that the probability that it
+requires $k$ iterations to output an assignment of at least $\sfrac{7m}{8}$
+\True clauses is
+\begin{align*}(1 - p)^k
+    &\leq \left(1 - \frac{c}{m}\right)^k\hbox{ for some $c > 0$}\\
+    &\leq e^{\frac{-ck}{m}}\\
+    \shortintertext{setting $k = \sfrac{m}{c}\ln{n}$}
+    &= \frac{1}{m}
+\end{align*}
+Observe that our algorithm is a Las Vegas algorithm. However, there is an
+analogous Monte Carlo algorithm:
+\begin{algorithm}
+    \caption{Randomized Max 3-SAT Algorithm (MC Variant)}
+    \begin{algorithmic}[1]
+        \Function{Solve}{\texttt{formula}}
+            \State $\texttt{result} \gets 0$
+            \State $\texttt{bool-vec} \gets \vec{0}$
+            \ForRange{$i$}{1}{$\sfrac{m}{c}\ln{n}$}
+                \State $\texttt{new-bool-vec}, \texttt{new-result} \gets \Call{Try-Solve}{\texttt{formula}}$
+                \If{$\texttt{new-result} > \texttt{result}$}
+                    \State $\texttt{result} \gets \texttt{new-result}$
+                    \State $\texttt{bool-vec} \gets \texttt{new-bool-vec}$
+                \EndIf
+            \EndForRange
+            \State \Return \texttt{bool-vec}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Binomial Random Variable}
+\begin{definition}{Geometric Random Variable}{}
+    Consider some Bernoulli trial, i.e., an event with exactly two possible
+    outcomes, denotes ``success'' and ``failure'', and suppose success occurs
+    with probability $p$. The \emph{Binomial Distribution}, denoted $X \sim
+    B(n, p)$, is the number of successes after $n$ trials.
+\end{definition}
+
+\begin{theorem}{}{}
+    Let $X \sim B(n, p)$. Then $\expectation{X} = np$.
+\end{theorem}
+
+\begin{proof}
+    Again, \nameref{thm:linexp} is useful here. Let $X_i$ be the indicator
+    random variable that is 1 when trial $i$ is a success. Then
+    \[\expectation{X_i} = \prob{X_i = 1} = p\]
+    hence
+    \[\expectation{X} = \sum_{i=1}^n \expectation{X_i} = np\qedhere\]
+\end{proof}
+
+\subsection{Randomized Quicksort}
+The \emph{Quicksort} algorithm is a computer science staple, one of the most
+famous algorithms of the 20th century. A simplified version of the original
+implementation is below:
+
+\begin{algorithm}
+    \caption{Simplified variant of Quicksort algorithm.}
+    \label{alg:quicksort}
+    \begin{algorithmic}[1]
+        \Function{Quicksort}{\texttt{arr}}
+            \State $n \gets \Call{Len}{\texttt{arr}}$
+            \If{$n \leq 1}$
+                \State \Return \texttt{arr}
+            \Else
+                \State $\texttt{left}, P, \texttt{right} \gets \Call{Partition}{\texttt{arr}}$
+                \State \Return $\Call{Quicksort}{\texttt{left}} + P + \Call{Quicksort}{\texttt{right}}$
+            \EndIf
+        \EndFunction
+        \Function{Partition}{\texttt{arr}}
+            \State $\texttt{pivot} \gets \texttt{arr}[0]$
+            \State $\texttt{left}, P, \texttt{right} \gets [], [], []$
+            \For{$a \in \texttt{arr}}$
+                \If{$a < \texttt{pivot}}$
+                    \State $\texttt{left}.\Call{Append}{a}$
+                \ElsIf{$a = \texttt{pivot}$}
+                    \State $P.\Call{Append}{a}$
+                \Else
+                    \State $\texttt{right}.\Call{Append}{a}$
+                \EndIf
+            \EndFor
+            \State \Return $\texttt{left}, P, \texttt{right}$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+Notice that the worst case of this algorithm is $\bigO{n^2}$.
+%TODO demonstrate worst case quicksort
+On the other hand, the best case is $\bigO{n\log{n}}$.
+%TODO demonstrate best case quicksort
+We can consider a randomized variant --- functionally, the same algorithm, but
+with the partition scheme changed. Rather than selecting the element with index
+0 as the pivot, select a \emph{random} element as the pivot. Let us consider the
+number of comparisons in this variant.
+
+\begin{theorem}{}{}
+    The above randomized variant of Quicksort has an expected runtime of
+    $\bigO{n\log{n}}$.
+\end{theorem}
+
+\begin{proof}
+    Let $X$ denote the number of comparisons. It should be clear that
+    $\prob{X=x}$ is impractical to compute directly. Instead, notice that two
+    elements of the array will be compared \emph{at most} once --- when one of
+    the two elements is the pivot \emph{end}. 
+
+    Assume the sorted order of the elements is $a_0$, $a_1$, \dots, $a_n$, and
+    let $X_{i,j}$ denote the indicator random variable that is 1 when $a_i$ and
+    $a_j$ are compared. Notice that if any of $a_{i+1}$, $a_{i + 2}$, \dots,
+    $a_{j - 1}$ are chosen, then $a_i$ and $a_j$ will end up in separate
+    partitions and never be compared. Additionally, if any values $a_0$, $a_1$,
+    \dots, $a_{i - 1}$ or $a_{j + 1}$, $a_{j + 2}$, \dots, $a_{n-1}$ are chosen,
+    this will have no effect on whether $a_i$ and $a_j$ are compared.
+    
+    Thus, the probability that $a_i$ and $a_j$ are compared is simply the
+    probability that either value is chosen as the pivot from $a_i$, $a_{i +
+    1}$, \dots, $a_j$, which is
+    \[\frac{2}{j - i + 1}\]
+    Thus, we have
+    \begin{align*}\expectation{X}
+        &=\sum_{i=0}^{n-1}\sum_{j=i+1}^{n-1}\expectation{X_{i,j}}\\
+        &=\sum_{i=0}^{n-1}\sum_{j=i+1}^{n-1}\frac{2}{j - i + 1}\\
+        \shortintertext{writing $k = j - i$}\\
+        &=\sum_{i=0}^{n-1}\sum_{k=1}^{n - i - 1}\frac{2}{k + 1}\\
+        &\leq\sum_{i=0}^{n-1}2H_n\\
+        &\leq 2nH_n\\
+        &=\bigO{n\log{n}}\qedhere
+    \end{align*}
+\end{proof}
