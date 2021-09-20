@@ -68,8 +68,8 @@ bounded above by
     &=\frac{1}{n}
 \end{align*}
 
-\subsection{Baye's Law}
-\begin{theorem}{Baye's Law}{}
+\subsection{Bayes' Law}
+\begin{theorem}{Bayes' Law}{}
     For any events $A$ and $B$,
     \[\prob{A \given B} = \frac{\prob{B \given A} \prob{A}}{\prob{B}}\]
 \end{theorem}
@@ -101,7 +101,7 @@ Let us define
 At first, our ``belief'' in $E_1$ and $E_2$ are approximately the same, i.e., we
 have no information to determine which event is more likely. However, let us
 assume we have sampled two elements with replacement and determined that they
-are not equal (call this event $F$). We can update our ``belief'' via Baye's
+are not equal (call this event $F$). We can update our ``belief'' via Bayes'
 Law.
 \begin{align*}\prob{E_1 \given F}
     &= \frac{\prob{F \given E_1} \prob{E_1}}{\prob{F}}\\
@@ -121,7 +121,7 @@ favor} of the belief that $E_2$ has occurred.
 
 \subsection{Naive Bayesian Classifier}
 A Naive Bayesian Classifier is a classic example of how we can apply
-probabilistic techniques and Baye's Law in practice. Suppose we have a
+probabilistic techniques and Bayes' Law in practice. Suppose we have a
 \emph{feature set} $e$, a vector of boolean $n$ boolean variable. These could
 be, for example, whether a certain keyword appears in an email in an attempt to
 detect spam. Then, assuming the independence of the boolean variables (this is

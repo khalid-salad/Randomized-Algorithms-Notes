@@ -70,10 +70,10 @@ right partition.
     \caption{Simplified variant of Quickselect algorithm with random pivot.}
     \label{alg:randquickselect}
     \begin{algorithmic}[1]
-        \Function{Rand-Quickselect}{\texttt{arr}}
+        \Function{Rand-Quickselect}{\texttt{arr}, $k$}
             \State $n \gets \Call{Len}{\texttt{arr}}$
-            \If{$n \leq 1}$
-                \State \Return \texttt{arr}
+            \If{$n = 1}$
+                \State \Return $\texttt{arr}[0]$
             \Else
                 \State $\texttt{left}, P, \texttt{right} \gets \Call{Partition}{\texttt{arr}}$
                 \State $\ell \gets \Call{Length}{\texttt{left}}$
@@ -89,3 +89,102 @@ right partition.
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
+
+Let us determine the expected number of comparisons in this algorithm. To do so,
+we assume the elements of \texttt{arr} in sorted order are $a_1$, $a_2$, \dots,
+$a_n$ and consider the probability that the pivot chosen falls into the
+\emph{middle \sfrac{1}{3} of values}. The key intuition here is that the pivot
+does not need to fall \emph{exactly} in the middle in order to achieve good
+asymptotic performance --- simply falling into the middle $\sfrac{1}{3}$ ``most
+of the time'' is sufficient.
+
+When the pivot does fall in the middle $\sfrac{1}{3}$, the set containing the
+$k$-th smallest element will have at \emph{most} $\sfrac{2n}{3}$ elements. This
+yields the recurrence
+\[T(n) \leq \frac{1}{3}T\left(\frac{2n}{3}\right) + \frac{2}{3}T(n) + \bigO{n}\]
+with base case $T(1) = 0$. This is an expression on random variables, and so it
+cannot be solved directly (in fact, it would not make sense to do so). Thus, we
+take the expectation of each side:
+
+\begin{align*}\expectation{T(n)}
+    &\leq \frac{1}{3}\expectation{T\left(\frac{2n}{3}\right)} + \frac{2}{3}\expectation{T(n)} + \bigO{n}\\
+    \shortintertext{combining like terms}\\
+    \expectation{T(n)} &\leq \expectation{T\left(\frac{2n}{3}\right)} + \bigO{n}\\
+    &= \bigO{n} 
+\end{align*}
+
+\subsection{Conditional Expectation}
+\begin{definition}{Conditional Expectation}{}
+    Let $X$ be a random variable and $E$ some event. The \emph{expectation of
+    $X$ given $E$}, $\expectation{X \given E}$, is defined
+    \begin{align*}\expectation{X \given E}
+        &=\sum_{x \in X(S)} \prob{X = x \given E}\\
+        &=\sum_{x \in X(S)} \frac{\prob{X = x \cap E}}{\prob{E}}
+    \end{align*}
+    Similarly, if $Y$ is a random variable, 
+    \begin{align*}\expectation{X \given Y}
+        &=\sum_{x \in X(S)} \prob{X = x \given Y = y}\\
+        &=\sum_{x \in X(S)} \frac{\prob{X = x \cap Y = y}}{\prob{Y = y}}
+    \end{align*}
+\end{definition}
+
+Note that Conditional Expectation is actually a random variable. For example, if
+we let $X = X_1 + X_2$ denote the sum of two fair die, the random variable
+$\expectation{X \given X_1}$ is given by
+\begin{align*}\expectation{X \given X_1 = x_1}
+    &= \sum_{x = x_1 + 1}^{x_1 + 6} x\prob{X = x \given X_1 = x_1}\\
+    &= \sum_{x = x_1 + 1}^{x_1 + 6} x\frac{1}{6}\\
+    &= x_1 + \frac{7}{2}
+\end{align*}
+
+\begin{theorem}{}{}
+    Let $X$ and $Y$ be random variables. Then
+    \[\expectation{X} = \sum_{y\in Y(S)}\expectation{X \given Y = y}\prob{Y = y}\]
+\end{theorem}
+
+\begin{proof}
+    By definition, 
+    \begin{align*}\expectation{X}
+        &= \sum_{y\in Y(S)}\expectation{X \given Y = y}\prob{Y = y}\\
+        &= \sum_{x \in X(S)}\sum_{y \in Y(S)} x\prob{X = x \given Y = y}\prob{Y = y}\\
+        &= \sum_{x \in X(S)}\sum_{y \in Y(S)} x\prob{X = x \cap Y = y}\\
+        &= \sum_{x \in X(S)}x \sum_{y \in Y(S)} \prob{X = x \cap Y = y}
+        \shortintertext{by the Law of Total Probability}\\
+        &= \sum_{x \in X(S)}x \prob{X = x}\\
+        &= \expectation{X}\qedhere
+    \end{align*}
+\end{proof}
+
+\begin{theorem}{Law of Total Expectation}{}
+    Let $X$ and $Y$ be random variables. Then
+    \[\expectation{\expectation{X \given Y}} = \expectation{X}\]
+\end{theorem}
+
+\begin{proof}
+    By definition
+    \begin{align*}\expectation{\expectation{X \given Y}}
+        &= \expectation{\sum_{x} x \prob{X = x \given Y = y}}\\
+        &= \sum_{y} \left(\sum_{x} x \prob{X = x \given Y = y}\right)\prob{Y = y}\\
+        &= \sum_{y} \sum_{x} x \prob{X = x \given Y = y}\prob{Y = y}\\
+        &= \sum_{x} x \sum_{y} \prob{X = x \cap Y = y}\\
+        &= \sum_{x} x \prob{X = x}\\
+        &= \expectation{X}
+    \end{align*}
+\end{proof}
+
+\subsection{Branching Process}
+One application of Conditional Expectation is to branching processes. Suppose a
+single person is infected with some disease, and let $X$ denote the number of
+people infected by a single person. Assume further that $\expectation{X} = \mu$. 
+
+Now, let $Z$ denote the total number of infected people and $Z_i$ the number
+infected in \emph{generation $i$}. By definition,
+\[\expectation{Z_i \given Z_{i - 1}} = Z_{i - 1}\mu\]
+hence
+\begin{align*}\expectation{Z_i}
+    &= \expectation{\expectation{Z_i \given Z_{i - 1}}}\\
+    &= \expectation{Z_{i-1} \mu}\\
+    &= \mu\expectation{Z_{i - 1}}
+\end{align*}
+Since $\expectation{Z_0} = 1$, $\expectation{Z_n} = \mu^n$, and
+\[\expectation{Z} = 1 + \mu + \mu^2 + \dots = \frac{1}{1 - \mu} \hbox{ if $\mu$ < 1}\]

@@ -10,10 +10,10 @@ operations, improving over the previous best of $\bigO{n^{2.37287}}$
 randomization.
 
 A principle in randomized algorithms is to take advantage of an ``abundance of
-weaknesses,'' that is, when some property that is helpful towards your algorithm
+witness,'' that is, when some property that is helpful towards your algorithm
 occurs often enough, to try and make use of that property.
 
-In this case, the weakness is that, if $AB = C$, then $AB\vec{r} = C\vec{r}$ for
+In this case, the witness is that, if $AB = C$, then $AB\vec{r} = C\vec{r}$ for
 every vector $\vec{r}$. Thus, a single vector will prove if $AB \neq C$, and
 each vector for which $AB\vec{r} = C\vec{r}$ increases our confidence that $AB =
 C$. This admits the following pseudocode
