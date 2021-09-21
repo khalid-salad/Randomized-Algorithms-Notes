@@ -1,0 +1,196 @@
+\section{09/21}
+Recall our definition of conditional expectation
+\[\expectation{X \given Y = y} = \sum_{x} x \prob{X = x \given Y = y}\]
+This is a random variable in terms of the dummy variable $y$. Conditional
+expectation is a powerful tool --- for example, recall the Geometric Random
+Variable given in~\cref{def:geometricrv}. We previously showed that it has
+expected value $\sfrac{1}{p}$. This can similarly be shown using conditional
+expectation.
+
+Let $X$ denote the number of trials until a success, and define
+\[Y = \begin{cases}1 & \hbox{first trial is success}\\
+                   0 & \hbox{otherwise}\end{cases}\]
+Then
+\begin{align*}\expectation{X}
+    &= \expectation{\expectation{X \given Y}}\\
+    &= \expectation{X \given Y = 0}\prob{Y = 0} + \expectation{X \given Y = 1}\prob{Y = 1}\\
+    &= \expectation{X + 1}(1 - p) + 1 \cdot p\\
+    &= (1 - p)\expectation{X} + 1\\
+    \shortintertext{solving for $\expectation{X}$}\\
+    &= \frac{1}{p}
+\end{align*}
+
+A probability distribution is \emph{memoryless} if a future event is not
+affected by previous events. This is clearly true for the geometric
+distribution. 
+
+On the other hand, suppose we toss a coin until we see $k$ \emph{consecutive}
+heads. This is clearly \emph{not} memoryless --- once we flip a coin heads, we
+only need $k - 1$ more consecutive heads, and similarly, once we flip a tail,
+our count resets and we need $k$ more consecutive heads.
+
+Let $N_k$ denote the number of tosses to get $k$ heads in a row, and consider
+$\expectation{N_k \given N_{k - 1}}$. We are conditioning on $N_{k - 1}$, hence
+we have already flipped $k - 1$ consecutive heads. If the next flip is heads, we
+are done. Otherwise, we must flip another $k$ consecutive heads. Thus, we have
+\begin{align*}\expectation{N_k \given N_{k - 1}}
+    &= \frac{1}{2}\left(N_{k - 1} + 1\right) + \frac{1}{2}\left(N_{k - 1} + 1 + N_k\right)\\
+    &= N_{k - 1} + 1 + \frac{1}{2}N_k
+\end{align*}
+Now, linearity of expectation finishes this exercise:
+\begin{align*}\expectation{N_k}
+    &= \expectation{\expectation{N_k \given N_{k - 1}}}\\
+    &= \expectation{N_{k - 1}} + 1 + \frac{1}{2}\expectation{N_k}
+\end{align*}
+which yields the recurrence
+\begin{align*}
+    \expectation{N_1} &= 2\\
+    \expectation{N_k} &= 2\expectation{N_{k - 1}} + 2
+\end{align*}
+The solution to this is $\expectation{N_k} = 2^{k + 1} - 2$.
+
+\subsection{Deviation from Expectation}
+Suppose we have a random variable $X$ with mean $\mu$. What is the probability
+that $X$ is ``far away'' from $\mu$? For example, consider a game where a coin
+is tossed and, should it land heads, the player wins \$1, otherwise the player
+loses \$1. Call the player's winnings $X$ and observe that
+\[\expectation{X} = \frac{1}{2}\cdot 1 + \frac{1}{2} \cdot -1 = 0\]
+
+On the other hand, suppose the player tosses 10 coins and wins $2^{10} - 1 =
+1023$ dollars when \emph{all 10} coins come up heads, otherwise the player loses
+\$1. Then
+\[\expectation{X} = \frac{1}{2^{10}}\cdot \left(2^{10} - 1\right) + \left(1 - \frac{1}{2}\right) \cdot -1 = 0\]
+While these games have the same expectation, we will later see that they have
+very different deviation.
+
+\begin{theorem}{Markov's Inequality}{markovinequality}
+    Let $X$ be any positive-valued random variable. Then
+    \[\prob{X \geq a} \leq \frac{\expectation{X}}{a}\]
+\end{theorem}
+
+\begin{proof}
+    Define the random variable
+    \[I = \begin{cases}
+        1 & X \geq a\\
+        0 & \hbox{otherwise}
+    \end{cases}\]
+    and notice that $I \leq \sfrac{X}{a}$ and that $\prob{I = 1} = \prob{X \geq
+    a}$. Then
+    \[\expectation{I} = \prob{X \geq a} \leq \frac{\expectation{X}}{a}\qedhere\]
+\end{proof}
+
+\begin{corollary}{}{}
+    Let $X$ be any positive-valued random variable. Then
+    \[\prob{X \geq k\expectation{X}} \leq \frac{1}{k}\]
+\end{corollary}
+
+For example, suppose we toss $n$ fair coins and let $X$ count the number of
+heads. We can determine an upper bound on $\prob{X \geq \sfrac{2n}{3}}$ by
+noting that $\expectation{X} = \sfrac{n}{2}$, hence
+\[\prob{X \geq \frac{2n}{3}} \leq \frac{\sfrac{n}{2}}{\sfrac{2n}{3}} = \frac{3}{4}\]
+This is a fairly coarse bound, and is not very precise.
+% For example, the above
+% can be computed directly as
+% \begin{align*}\prob{X \geq \frac{2n}{3}}
+%     &= \sum_{k = \sfrac{2n}{3}}^n \binom{n}{k}\left(\frac{1}{2}\right)^n\\
+%     &< \left(\frac{1}{2}\right)^n\sum_{k = \sfrac{2n}{3}}^n \left(\frac{ne}{k}\right)^k
+% \end{align*}
+
+\subsection{Variance (Second Moment)}
+\begin{definition}{Variance}{variance}
+    The \emph{variance} of a random variable $X$, also called its \emph{second
+    moment}, is defined
+    \[\variance{X} = \expectation{(x - \expectation{X})^2}\]
+\end{definition}
+\begin{theorem}{}{newvardef}
+    \[\variance{X} = \expectation{X^2} - \expectation{X}^2\]
+\end{theorem}
+\begin{proof}
+    By definition,
+    \begin{align*}\variance{X}
+        &= \expectation{(X - \expectation{X})^2}\\
+        &= \expectation{X^2 - 2X\expectation{X} + \expectation{X}^2}\\
+        &= \expectation{X^2} - 2\expectation{X}\expectation{X} + \expectation{X}^2\\
+        &= \expectation{X^2} - \expectation{X}^2\qedhere
+    \end{align*}
+\end{proof}
+
+Recall the definition of a Bernoulli Random Variable --- a single trial with
+probability of success $p$. Let us write $X = 1$ if our trial is a success, 0
+otherwise. Then
+\begin{align*}
+    \expectation{X} &= p\\
+    \variance{X} &= \expectation{X^2} - \expectation{X}^2\\
+                 &= 1^2\prob{X = 1} - p^2\\
+                 &= p - p^2\\
+                 &= p(1 - p)
+\end{align*}
+
+Now, let us consider the variance of a sum of random variables.
+\begin{theorem}{}{}
+    Let $X$ and $Y$ be random variables. Then
+    \[\variance{X + Y} = \variance{X} + \variance{Y} + 2\left(\expectation{XY} - \expectation{X}\expectation{Y}\right)\]
+\end{theorem}
+\begin{proof}
+    By~\cref{thm:newvardef}, 
+    \begin{align*}\variance{X + Y}
+        &= \expectation{(X + Y)^2} - \expectation{X + Y}^2\\
+        &= \expectation{X^2 + 2XY + Y^2} - \left(\expectation{X} + \expectation{Y}\right)^2\\
+        &= \expectation{X^2} + 2\expectation{XY} + \expectation{Y^2} - \expectation{X}^2 - 2\expectation{X}\expectation{Y} - \expectation{Y}^2\\
+        &= \expectation{X^2} - \expectation{X}^2 + \expectation{Y^2} - \expectation{Y}^2 + 2\left(\expectation{XY} - \expectation{X}\expectation{Y}\right)\\
+        &= \variance{X} + \variance{Y} + 2\left(\expectation{XY} - \expectation{X}\expectation{Y}\right)
+    \end{align*}
+\end{proof}
+
+Before proceeding, we need to define \emph{covariance}.
+\begin{definition}{Covariance}{covariance}
+    Given random variables $X$ and $Y$, the \emph{covariance} of $X$ and $Y$ is
+    defined
+    \[\covariance{X}{Y} = \expectation{\left(X - \expectation{X}\right)\left(Y - \expectation{Y}\right)}\]
+\end{definition}
+
+\begin{theorem}{}{}
+    Given random variables $X$ and $Y$,
+    \[\covariance{X}{Y} = \expectation{XY} - \expectation{X}\expectation{Y}\]
+\end{theorem}
+
+\begin{proof}
+    By definition
+    \begin{align*}\covariance{X}{Y}
+        &= \expectation{\left(X - \expectation{X}\right)\left(Y - \expectation{Y}\right)}\\
+        &= \expectation{XY - \expectation{X}Y - X\expectation{Y} + \expectation{X}\expectation{Y}}\\
+        &= \expectation{XY} - \expectation{X}\expectation{Y} - \expectation{X}\expectation{Y} + \expectation{X}\expectation{Y}\\
+        &= \expectation{XY} - \expectation{X}\expectation{Y}\qedhere
+    \end{align*}
+\end{proof}
+
+\begin{corollary}{}{}
+    Let $X$ and $Y$ be random variables. Then
+    \[\variance{X + Y} = \variance{X} + \variance{Y} + 2\covariance{X}{Y}\]
+\end{corollary}
+
+\begin{theorem}{}{}
+    Let $X$ and $Y$ be \emph{independent} random variables. Then
+    \[\expectation{XY} = \expectation{X}\expectation{Y}\] 
+\end{theorem}
+
+\begin{proof}
+    By definition
+    \begin{align*}\expectation{XY}
+        &= \sum_{x}\sum_{y} xy\prob{X = x \cap Y = y}\\
+        &= \sum_{x}\sum_{y} xy\prob{X = x} \prob{Y = y}\\
+        &= \sum_{x}x\prob{X = x}\sum_{y}y\prob{Y = y}\\
+        &= \expectation{X}\expectation{Y}\qedhere
+    \end{align*}
+\end{proof}
+
+\begin{corollary}{}{}
+    If $X$ and $Y$ are independent, then $\covariance{X}{Y} = 0$ and
+    \[\variance{X + Y} = \variance{X} + \variance{Y}\]
+\end{corollary}
+
+Now, suppose we toss $n$ independent fair coins and wish to determine the
+variance on the number of heads. Let $X$ denote the number of heads and let
+$X_i$ indicate if the $i$-th coin is heads. Clearly, $\variance{X_i} = p(1 -
+p)$, and by the previous corollary,
+\[\variance{X} = \sum_{i = 1}^n \variance{X_i} = np(1 - p)\]
